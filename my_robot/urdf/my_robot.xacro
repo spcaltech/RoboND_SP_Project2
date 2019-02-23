@@ -1,58 +1,41 @@
 <?xml version='1.0'?>
 
 <robot name="my_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <xacro:include filename="$(find my_robot)/urdf/my_robot.gazebo" />    
+	<link name="robot_footprint"></link>
 
-  <link name="robot_footprint"></link>
+    <joint name="robot_footprint_joint" type="fixed">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <parent link="robot_footprint"/>
+        <child link="chassis" />
+    </joint>
 
-  <joint name="robot_footprint_joint" type="fixed">
-    <origin xyz="0 0 0" rpy="0 0 0" />
-    <parent link="robot_footprint"/>
-    <child link="chassis" />
-  </joint>
-<joint type="continuous" name="left_wheel_hinge">
-    <origin xyz="0 0.15 0" rpy="0 0 0"/>
-    <child link="left_wheel"/>
-    <parent link="chassis"/>
-    <axis xyz="0 1 0" rpy="0 0 0"/>
-    <limit effort="10000" velocity="1000"/>
-    <dynamics damping="1.0" friction="1.0"/>
-  </joint>
-  
-  <joint type="continuous" name="right_wheel_hinge">
-    <origin xyz="0 0.3 0" rpy="0 0 0"/>
-    <child link="right_wheel"/>
-    <parent link="chassis"/>
-    <axis xyz="0 1 0" rpy="0 0 0"/>
-    <limit effort="10000" velocity="1000"/>
-    <dynamics damping="1.0" friction="1.0"/>
-  </joint>
-  <link name='chassis'>
-    <pose>0 0 0.1 0 0 0</pose>
+    <link name="chassis">
+      <pose>0 0 0.1 0 0 0</pose>
 
-    <inertial>
-      <mass value="15.0"/>
-      <origin xyz="0.0 0 0" rpy=" 0 0 0"/>
-      <inertia
+      <inertial>
+        <mass value="15.0"/>
+        <origin xyz="0.0 0 0" rpy=" 0 0 0"/>
+        <inertia
           ixx="0.1" ixy="0" ixz="0"
           iyy="0.1" iyz="0"
           izz="0.1"
-      />
-    </inertial>
+          />
+      </inertial>
 
-    <collision name='collision'>
-      <origin xyz="0 0 0" rpy=" 0 0 0"/> 
-      <geometry>
-        <box size=".4 .2 .1"/>
-      </geometry>
-    </collision>
+      <collision name='collision'>
+        <origin xyz="0 0 0" rpy=" 0 0 0"/> 
+        <geometry>
+           <box size=".4 .2 .1"/>
+        </geometry>
+      </collision>
 
-    <visual name='chassis_visual'>
-      <origin xyz="0 0 0" rpy=" 0 0 0"/>
-      <geometry>
-        <box size=".4 .2 .1"/>
-      </geometry>
-    </visual>
-
+      <visual name='chassis_visual'>
+        <origin xyz="0 0 0" rpy=" 0 0 0"/>
+        <geometry>
+           <box size=".4 .2 .1"/>
+        </geometry>
+      </visual>
 
     <collision name='back_caster_collision'>
       <origin xyz="-0.15 0 -0.05" rpy=" 0 0 0"/>
@@ -81,59 +64,154 @@
         <sphere radius="0.05"/>
       </geometry>
     </visual>
-
   </link>
+  <gazebo reference="chassis">
+       <material>Gazebo/green</material>
+  </gazebo>
+  <link name = "right_wheel">
+  
+   <collision name='right_wheel_collision'>
+      <origin xyz="0 0 0" rpy=" 0 1.5707 1.5705"/>
+      <geometry>
+        <cylinder length = "0.05" radius = "0.1"/>
+      </geometry>
+    </collision>
+	
+    <inertial>
+      <origin xyz = "0 0 0" rpy = "0 1.5707 1.5707"/>
+      <mass value = "5"/>     
+      <inertia
+       ixx="0.1" ixy="0" ixz="0"
+       iyy="0.1" iyz="0" 
+       izz="0.1"
+      />
+    </inertial>
+    
+    <visual name='right_wheel_visual'>
+      <origin xyz="0 0 0" rpy=" 0 1.5707 1.5707"/>
+      <geometry>
+        <cylinder length = "0.05" radius = "0.1"/>
+      </geometry>
+    </visual>  
+  </link>
+  
+  <link name = "left_wheel">  
+   <collision name='left_wheel_collision'>
+      <origin xyz="0 0 0" rpy=" 0 1.5707 1.5707"/>
+      <geometry>
+        <cylinder length = "0.05" radius = "0.1"/>
+      </geometry>
+    </collision>
+	
+    <inertial>
+      <mass value = "5"/>
+      <inertia
+        ixx="0.1" ixy="0" ixz="0"
+        iyy="0.1" iyz="0" 
+        izz="0.1"
+      />
+     </inertial>
+    
+    <visual name='left_wheel_visual'>
+      <origin xyz="0 0 0" rpy=" 0 1.5707 1.5705"/>
+      <geometry>
+        <cylinder length = "0.05" radius = "0.1"/>
+      </geometry>
+    </visual>      
+  </link>
+  
+  <gazebo reference="left_wheel">
+       <material>Gazebo/Red</material>
+  </gazebo>
+  
+  <gazebo reference="right_wheel">
+       <material>Gazebo/Red</material>
+  </gazebo>
+
+  <joint type="continuous" name="left_wheel_hinge">
+    <origin xyz="0 0.15 0" rpy="0 0 0"/>
+    <child link="left_wheel"/>
+    <parent link="chassis"/>
+    <axis xyz="0 1 0" rpy="0 0 0"/>
+    <limit effort="10000" velocity="1000"/>
+    <dynamics damping="1.0" friction="1.0"/>
+  </joint>
+  
+  <joint type="continuous" name="right_wheel_hinge">
+    <origin xyz="0 -0.15 0" rpy="0 0 0"/>
+    <child link="right_wheel"/>
+    <parent link="chassis"/>
+    <axis xyz="0 1 0" rpy="0 0 0"/>
+    <limit effort="10000" velocity="1000"/>
+    <dynamics damping="1.0" friction="1.0"/>
+  </joint>
+  
 <link name = "camera">
-<link origin = "[0, 0, 0, 0, 0, 0]">
-<geometry = "[0.05, 0.05, 0.05]">
-<mass = "0.1">
-<box_inertia  
-m="0.1" 
-x="0.05" y="0.05" z="0.05"
-/>
-<inertia
-ixx="1e-6" ixy="0" ixz="0"
- iyy="1e-6" iyz="0" 
-izz="1e-6"
-/>
-<joint name = "camera_joint">
 
-<joint type = "fixed">
-<joint axis = "[0, 1, 0]">
-<joint origin = "[0.2, 0, 0, 0, 0, 0]">
-<joint parent_link = "chassis">
-<joint child_link = "camera">
-</joint>
-</link>
+      <collision>
+	     <origin xyz="0 0 0" rpy="0 0 0"/>
+         <geometry> 
+           <box size = "0.05 0.05 0.05" rpy = "0 0 0"/>
+         </geometry>
+       </collision>
+	   
+      <inertial>  
+         <origin xyz = "0 0 0" rpy = "0 0 0"/>
+		 <mass value = "0.1"/>
+         <inertia    
+            ixx="1e-6" ixy="0" ixz="0"
+            iyy="1e-6" iyz="0" 
+            izz="1e-6"
+         />
+      </inertial>
 
-<link name = "hokuyo">
-<link origin = "[0, 0, 0, 0, 0, 0]">
-<collison>
-<geometry = "[0.1, 0.1, 0.1]">
-</collison>
+       <visual>
+	     <origin xyz="0 0 0" rpy="0 0 0"/>
+         <geometry> 
+           <box size = "0.05 0.05 0.05" rpy = "0 0 0"/>
+         </geometry>      
+       </visual>    
+  </link>
+  <gazebo reference="camera">
+       <material>Gazebo/blue</material>
+  </gazebo>
+  <joint name = "camera_joint" type="fixed">        
+        <origin xyz = "0.2 0 0" rpy = "0 0 0"/>
+        <parent link = "chassis"/>
+        <child link = "camera"/>
+		<axis xyz = "0 1 0"/>
+  </joint>
+  
+  <link name = "hokuyo">
+    <collision>
+	  <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size = "0.1 0.1 0.1"/>
+      </geometry>
+    </collision>
+   
+    <inertial>
+      <origin xyz = "0 0 0" rpy = "0 0 0"/>
+      <mass value = "1e-5"/>  
+        <inertia 
+           ixx="1e-6" ixy="0" ixz="0" 
+           iyy="1e-6" iyz="0" 
+           izz="1e-6"
+        />
+    </inertial>
 
-<visual> 
-<geometry filename = 'package://my_robot/meshes/hokuyo.dae'>
-</visual>
-<mass = "1e-5">
-<inertia 
-ixx="1e-6" ixy="0" ixz="0" 
-iyy="1e-6" iyz="0" 
-izz="1e-6"
-/>
-<joint name = "hokuyo_joint">
+    <visual> 
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename = "package://my_robot/meshes/hokuyo.dae"/>
+      </geometry>
+    </visual> 
+   </link>
 
-<joint type = "fixed">
-<joint axis = "[0 1 0]">
-<joint origin = "[0.15, 0, .1, 0, 0, 0]">
-<joint parent_link = "chassis">
-<joint child_link = "hokuyo">
-</joint>
-</link>
-<gazebo reference="left_wheel">
-    <material>Gazebo/Green</material>
-</gazebo>
-<gazebo reference="right_wheel">
-    <material>Gazebo/Green</material>
-</gazebo>
-</robot>
+   <joint name = "hokuyo_joint" type = "fixed">    
+      <origin xyz = "0.15 0 .1" rpy = "0 0 0"/>
+      <axis xyz = "0 1 0"/>
+      <parent link = "chassis"/>
+      <child link = "hokuyo"/>        
+   </joint>
+  </robot>
