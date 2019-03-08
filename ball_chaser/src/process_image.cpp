@@ -23,32 +23,62 @@ void drive_robot(float lin_x, float ang_z)
 void process_image_callback(const sensor_msgs::Image img)
 {
     int white_pixel_val = 255;
-    int green_pixel_val = 28;
-    int moment = 0;
-    int white_green_pixels = 0;
-    int green_pixels = 0;
+    int ahead = 0;
+    int white_pixels = 0;
+    int left = 0;
+    int right = 0;
     int total_pixels = 0;
-    float awm;
+    float move_z;
     float x, z;
-    for(int i=0; i<img.height; ++i){
-        for (int j=0; j<img.step; ++j){
+   for(int i=1; i<img.height*img.step; i++){ // Scan through the complete image frame
             ++total_pixels;
-            if ((img.data[i * img.step + j] == white_pixel_val) || (img.data[i * img.step + j] == green_pixel_val)){
-                ++white_green_pixels;
-                moment = moment + j - img.step/2;
-                awm = moment/white_green_pixels;
+           if (img.data[i] == white_pixel_val){ // Bright WHITE Pixel found
+                ++white_pixels;
+                
+              if (((i%img.step)<=(img.step/3)) && ((i%img.step) != 0)) { // WHITE Pixel on left of the image frame
+                ++left; // Increment left pixel counter
+              }
+              else if (((i%img.step)<=(img.step/3)*2) && ((i%img.step) != 0)) { // WHITE Pixel on middle of the image frame
+                ++ahead; // Increment middle pixel counter        
+              }
+              else { // WHITE Pixel on right of the image frame
+                ++right; // Increment right pixel counter
+              }
             }
-        }
-    }
-    ROS_INFO("%d WHITE or GREEN pixels found. awm is %1.2f ", (int)white_green_pixels,awm);
-    if (white_green_pixels == 0) { // no pixels found turn until you find some.
+   } 
+
+// Finding x & z values for the drive command depending on the location of the white pixels
+
+    if (white_pixels == 0) { //If NO WHITE Pixels found in the frame, rotate right with angular z = 0.5 and do not move (x = 0.0)
         x = 0.0;
-        z = -.5;
+        z = -0.5;
     }  
     else {
-        x = 0.1;
-        z=  -0.5*awm/600;
-    }
+       if (left>ahead) { // More Pixels on the left than the middle frame
+           if (ahead>right) { // More Pixels on the middle frame than the right frame
+               move_z = -0.2; // Turn LEFT
+           }
+           else if (left>right) { // More Pixels on the left frame than right frame
+               move_z = -0.2; // Turn LEFT
+           }
+           else {
+               move_z = 0.2; // Turn RIGHT
+           }
+       }
+       else {
+           if (ahead > right) { // More Pixels on the middle frame than the right frame
+               move_z = 0; // Do NOT turn
+           }
+           else { 
+               move_z = 0.2; // Turn RIGHT
+           }
+       }
+        x = 0.2;
+        z = -move_z;
+     }
+        ROS_INFO("%d WHITE pixels found. Move velocity is %1.2f ", (int)white_pixels,z);
+        ROS_INFO("Left = %d Ahead = %d Right = %d", left,ahead,right);
+      
     // Command the ROBOT to move with requested velocity  
     drive_robot(x,z);
 
